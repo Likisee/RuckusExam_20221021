@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ruckusexam.dao.TicketInfoDao">
+
+    <sql id="Base_Column_List">
+        id, ticket_id, ticket_type, ticket_content, ticket_status, severity_level, severity_user, priority_level, priority_user, update_user, update_time
+    </sql>
+
+    <insert id="insertSimple" parameterType="com.ruckusexam.entity.TicketInfo">
+        insert into ticket_info(ticket_id, ticket_type, ticket_content, ticket_status, update_user, update_time)
+        values (#{ticketId}, #{ticketType}, #{ticketContent}, #{ticketStatus}, #{updateUser}, #{updateTime})
+    </insert>
+
+    <insert id="insert" parameterType="com.ruckusexam.entity.TicketInfo">
+        insert into ticket_info(ticket_id, ticket_type, ticket_content, ticket_status, severity_level, severity_user, priority_level, priority_user, update_user, update_time)
+        values (#{ticketId}, #{ticketType}, #{ticketContent}, #{ticketStatus}, #{severityLevel}, #{severityUser}, #{priorityLevel}, #{priorityUser}, #{updateUser}, #{updateTime})
+    </insert>
+
+    <update id="updateById" parameterType="com.ruckusexam.entity.TicketInfo">
+        update ticket_info
+        <set>
+            <if test="ticketId != null">
+                ticket_id = #{ticketId,jdbcType=BIGINT},
+            </if>
+            <if test="ticketType != null">
+                ticket_type = #{ticketType,jdbcType=VARCHAR},
+            </if>
+            <if test="ticketContent != null">
+                ticket_content = #{ticketContent,jdbcType=VARCHAR},
+            </if>
+            <if test="ticketStatus != null">
+                ticket_status = #{ticketStatus,jdbcType=VARCHAR},
+            </if>
+            <if test="severityLevel != null">
+                severity_level = #{severityLevel,jdbcType=VARCHAR},
+            </if>
+            <if test="severityUser != null">
+                severity_user = #{severityUser,jdbcType=VARCHAR},
+            </if>
+            <if test="priorityLevel != null">
+                priority_level = #{priorityLevel,jdbcType=VARCHAR},
+            </if>
+            <if test="priorityUser != null">
+                priority_user = #{priorityUser,jdbcType=VARCHAR},
+            </if>
+            <if test="updateUser != null">
+                update_user = #{updateUser,jdbcType=VARCHAR},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+
+    <select id="queryByTicketId" resultType="com.ruckusexam.entity.TicketInfo">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM ticket_info
+        WHERE ticket_id=#{ticketId}
+        ORDER BY id DESC
+    </select>
+
+    <select id="queryTicketInfo" resultType="com.ruckusexam.entity.TicketInfo">
+        SELECT
+        T.id, T.ticket_id, T.ticket_type, T.ticket_content, T.ticket_status, T.severity_level, T.severity_user, T.priority_level, T.priority_user, T.update_user, T.update_time
+        FROM ticket_info T,
+        (SELECT ticket_info.ticket_id AS tid , MAX(ticket_info.update_time) AS max_time
+				FROM ticket_info
+				GROUP BY ticket_info.ticket_id ) AS S
+        WHERE T.ticket_id = S.tid AND T.update_time = S.max_time
+        ORDER BY T.ticket_id DESC
+    </select>
+
+</mapper>
