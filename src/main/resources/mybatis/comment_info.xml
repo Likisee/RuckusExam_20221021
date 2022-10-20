@@ -17,7 +17,7 @@
         FROM comment_info
         <where>
             <if test="ticketId != null">
-                outer_ticket_id = #{ticketId,jdbcType=VARCHAR},
+                outer_ticket_id = #{ticketId,jdbcType=VARCHAR}
             </if>
         </where>
         ORDER BY ID

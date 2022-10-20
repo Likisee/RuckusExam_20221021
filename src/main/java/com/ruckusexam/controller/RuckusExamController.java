@@ -371,11 +371,6 @@ public class RuckusExamController {
         boolean success = false;
         String errMsg = "";
         try {
-            boolean isLogin = (Boolean) session.getAttribute("isLogin");
-            if (!isLogin) {
-                throw new RuntimeException("Please login first.");
-            }
-
             // confirm TicketInfo
             TicketInfo ti = null;
             TicketType tt = null;
@@ -412,15 +407,15 @@ public class RuckusExamController {
                 ti.setTicketContent(ticketContent);
                 ti.setUpdateUser(userId);
                 ti.setUpdateTime(new Timestamp(System.currentTimeMillis()));
-                if((ti.getSeverityLevel() != PermissionUtil.getSeverity(severityLevel))) {
+                if ((ti.getSeverityLevel() != PermissionUtil.getSeverity(severityLevel))) {
                     ti.setSeverityLevel(severityLevel);
                     ti.setSeverityUser(userId);
                 }
-                if((ti.getPriorityLevel() != PermissionUtil.getPriority(priorityLevel))) {
+                if ((ti.getPriorityLevel() != PermissionUtil.getPriority(priorityLevel))) {
                     ti.setPriorityLevel(priorityLevel);
                     ti.setPriorityUser(userId);
                 }
-                if(op.equals(Operation.Edit)) {
+                if (op.equals(Operation.Edit)) {
                     success = ruckusExamImpl.updateTicketById(ti);
                 } else {
                     ti.setTicketStatus(tsNext.toString());
@@ -430,17 +425,17 @@ public class RuckusExamController {
             } catch (Exception e) {
                 // just update severityLevel or priorityLevel (everyone)
                 boolean needChange = false;
-                if((ti.getSeverityLevel() != PermissionUtil.getSeverity(severityLevel))) {
+                if ((ti.getSeverityLevel() != PermissionUtil.getSeverity(severityLevel))) {
                     needChange = true;
                     ti.setSeverityLevel(severityLevel);
                     ti.setSeverityUser(userId);
                 }
-                if((ti.getPriorityLevel() != PermissionUtil.getPriority(priorityLevel))) {
+                if ((ti.getPriorityLevel() != PermissionUtil.getPriority(priorityLevel))) {
                     needChange = true;
                     ti.setPriorityLevel(priorityLevel);
                     ti.setPriorityUser(userId);
                 }
-                if(needChange) {
+                if (needChange) {
                     success = ruckusExamImpl.updateTicketById(ti);
                 }
             }
@@ -457,4 +452,37 @@ public class RuckusExamController {
     /**************************************************************************
      評論一個Ticket
      *************************************************************************/
+
+    @RequestMapping(value = "createComment", method = RequestMethod.POST)
+    public ObjectNode createComment(@RequestParam("ticketId") Integer ticketId,
+                                    @RequestParam("commentContent") String commentContent,
+                                    HttpSession session) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode jObj = objectMapper.createObjectNode();
+        boolean success = false;
+        String errMsg = "";
+        try {
+            boolean isLogin = (Boolean) session.getAttribute("isLogin");
+            if (!isLogin) {
+                throw new RuntimeException("Please login first.");
+            }
+
+            int id = -1;
+            String userId = (String) session.getAttribute("userId");
+            Timestamp updateTime = new Timestamp(System.currentTimeMillis());
+            CommentInfo ci = new CommentInfo(id, ticketId, commentContent, userId, updateTime);
+
+            List<TicketInfo> resultList = ruckusExamImpl.queryTicketHistoryByTicketId(ticketId);
+            if (resultList.size() > 0) { // if ticketId is valid
+                success = ruckusExamImpl.insertComment(ci);
+            }
+        } catch (Exception e) {
+            success = false;
+            errMsg = String.format("Class: %s, Func: %s, Msg: %s", className, "createComments", e.getMessage());
+        } finally {
+            jObj.put("success", success);
+            jObj.put("errMsg", errMsg);
+            return jObj;
+        }
+    }
 }

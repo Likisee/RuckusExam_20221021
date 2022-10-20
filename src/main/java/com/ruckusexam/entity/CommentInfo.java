@@ -14,7 +14,7 @@ import java.sql.Timestamp;
 public class CommentInfo implements Serializable {
 
     private int id;
-    private String outerTicketId;
+    private Integer outerTicketId;
     private String commentContent;
     private String updateUser;
     private Timestamp updateTime;
@@ -22,7 +22,7 @@ public class CommentInfo implements Serializable {
     public CommentInfo() {
     }
 
-    public CommentInfo(int id, String outer_ticket_id, String comment_content, String update_user, Timestamp updateTime) {
+    public CommentInfo(int id, Integer outerTicketId, String commentContent, String updateUser, Timestamp updateTime) {
         this.id = id;
         this.outerTicketId = outerTicketId;
         this.commentContent = commentContent;
