@@ -86,7 +86,7 @@ public class RuckusExamController {
     }
 
     @RequestMapping(value = "logout", method = RequestMethod.POST)
-    public ObjectNode login(HttpSession session) {
+    public ObjectNode logout(HttpSession session) {
 
         session.setAttribute("isLogin", false);
         session.removeAttribute("userId");
