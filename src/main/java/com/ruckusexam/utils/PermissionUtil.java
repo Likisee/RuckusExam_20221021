@@ -83,6 +83,7 @@ public class PermissionUtil {
         return false;
     }
 
+    @Deprecated
     public static List<String> getPossibleTicketOperation(TicketStatus now) {
         List<String> resultList = new ArrayList<String>();
         if (now.equals(TicketStatus.New)) {
@@ -96,6 +97,30 @@ public class PermissionUtil {
         } else if (now.equals(TicketStatus.ReOpened)) {
             resultList.add(Operation.Resolve.name());
         }
+        return resultList;
+    }
+
+    public static List<String> getPossibleTicketOperationPro(TicketStatus now, Role role, TicketType tt) {
+        List<Operation> resultTempList = new ArrayList<Operation>();
+        if (now.equals(TicketStatus.New)) {
+            resultTempList.add(Operation.Edit);
+            resultTempList.add(Operation.Resolve);
+        } else if (now.equals(TicketStatus.Resolved)) {
+            resultTempList.add(Operation.Close);
+            resultTempList.add(Operation.ReOpen);
+        } else if (now.equals(TicketStatus.Closed)) {
+            resultTempList.add(Operation.ReOpen);
+        } else if (now.equals(TicketStatus.ReOpened)) {
+            resultTempList.add(Operation.Resolve);
+        }
+
+        List<String> resultList = new ArrayList<String>();
+        for (Operation op : resultTempList) {
+            if (getPermissionCheck(role, op, tt)) {
+                resultList.add(op.toString());
+            }
+        }
+
         return resultList;
     }
 

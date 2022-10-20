@@ -291,8 +291,8 @@ public class RuckusExamController {
      *************************************************************************/
 
     @RequestMapping(value = "queryTicketHistoryByTicketId", method = RequestMethod.POST)
-    public ObjectNode queryTicketInfo(@RequestParam("ticketId") Integer ticketId,
-                                      HttpSession session) {
+    public ObjectNode queryTicketHistoryByTicketId(@RequestParam("ticketId") Integer ticketId,
+                                                   HttpSession session) {
 
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode jObj = objectMapper.createObjectNode();
@@ -308,9 +308,13 @@ public class RuckusExamController {
             }
             resultList = ruckusExamImpl.queryTicketHistoryByTicketId(ticketId);
             success = true;
+
+            String role = (String) session.getAttribute("role");
+            Role r = Role.valueOf(role);
             if (resultList != null) {
                 ticketInfoList = objectMapper.writeValueAsString(resultList);
-                operationList = objectMapper.writeValueAsString(PermissionUtil.getPossibleTicketOperation(TicketStatus.valueOf(resultList.get(0).getTicketStatus())));
+//                operationList = objectMapper.writeValueAsString(PermissionUtil.getPossibleTicketOperation(TicketStatus.valueOf(resultList.get(0).getTicketStatus())));
+                operationList = objectMapper.writeValueAsString(PermissionUtil.getPossibleTicketOperationPro(TicketStatus.valueOf(resultList.get(0).getTicketStatus()), r, TicketType.valueOf(resultList.get(0).getTicketType())));
             }
         } catch (Exception e) {
             success = false;
